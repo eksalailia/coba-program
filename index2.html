@@ -431,7 +431,7 @@ function mulaiTimerLanjut() {
 }
 
 /* ============================================================
-   KIRIM KE GOOGLE APPS SCRIPT
+   KIRIM KE GOOGLE APPS SCRIPT (SUDAH DIPERBAIKI)
    ============================================================ */
 async function kirimKeGoogle(nilai, benar, salah, kosong, detailJawaban) {
   const statusEl = document.getElementById('uploadStatus');
@@ -447,19 +447,20 @@ async function kirimKeGoogle(nilai, benar, salah, kosong, detailJawaban) {
   };
 
   try {
-    // Ganti menjadi seperti ini (gunakan mode no-cors):
-await fetch(SCRIPT_URL, {
-  method: 'POST',
-  mode: 'no-cors', 
-  headers: { 'Content-Type': 'text/plain' },
-  body: JSON.stringify(payload)
-});
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors', 
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
 
-// Karena mode no-cors tidak bisa membaca balasan Google, 
-// kita anggap sukses jika tidak ada error jaringan.
-statusEl.innerHTML = '✅ Nilai berhasil dikirim ke guru.';
-statusEl.style.color = '#38a169';
-
+    statusEl.innerHTML = '✅ Nilai berhasil dikirim ke guru.';
+    statusEl.style.color = '#38a169';
+  } catch (err) {
+    statusEl.innerHTML = '⚠️ Gagal mengirim nilai otomatis. Tunjukkan halaman ini ke guru.';
+    statusEl.style.color = '#e53e3e';
+    console.error('Kirim gagal:', err);
+  }
 }
 
 /* ============================================================
