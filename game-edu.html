@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Edukasi: Petualangan Algoritma Scratch</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Nunito', sans-serif; user-select: none; }
+  body { background: #1e1e2f; color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px; overflow-x: hidden; }
+  
+  .app-container { max-width: 800px; width: 100%; background: #282a3a; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; position: relative; }
+
+  /* --- HALAMAN IDENTITAS --- */
+  #page-identitas { padding: 40px 30px; text-align: center; }
+  .logo { font-size: 60px; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  h1 { font-size: 24px; color: #ffbd2e; margin-bottom: 8px; }
+  .subtitle { color: #a0a5b8; font-size: 14px; margin-bottom: 30px; }
+  
+  .form-group { text-align: left; margin-bottom: 16px; }
+  label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #cbd5e1; }
+  input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 2px solid #3f4257; background: #1e1e2f; color: #fff; font-size: 15px; outline: none; transition: 0.2s; }
+  input:focus { border-color: #ffbd2e; }
+  
+  .btn { background: #ffbd2e; color: #1e1e2f; border: none; padding: 14px; border-radius: 10px; font-weight: 800; font-size: 16px; width: 100%; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+  .btn:hover { background: #ffd166; transform: translateY(-2px); }
+  .btn:active { transform: translateY(0); }
+  .btn-download { background: #4ade80; color: #064e3b; }
+  .btn-download:hover { background: #86efac; }
+
+  /* --- HALAMAN GAME --- */
+  #page-game { display: none; padding: 20px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; background: #1e1e2f; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; }
+  .student-info { font-size: 13px; font-weight: 700; color: #cbd5e1; }
+  .student-info span { color: #ffbd2e; }
+  .score-board { text-align: right; }
+  .score { font-size: 20px; font-weight: 900; color: #4ade80; }
+  .level-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+  .level-desc { font-size: 14px; color: #a0a5b8; line-height: 1.5; margin-bottom: 20px; }
+
+  .workspace { display: flex; flex-direction: column; gap: 20px; }
+  
+  /* Area Tujuan (Drop Zone) */
+  .drop-zone { background: #11111a; border: 3px dashed #4b5563; border-radius: 12px; padding: 16px; min-height: 150px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+  .drop-zone::before { content: "Susun Blok Kode di Sini"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #4b5563; font-weight: 700; font-size: 14px; pointer-events: none; }
+  .drop-zone.filled::before { display: none; }
+  .drop-zone.drag-over { border-color: #ffbd2e; background: #1a1a2e; }
+
+  /* Area Pilihan (Bank Kode) */
+  .code-bank { background: #1e1e2f; border-radius: 12px; padding: 16px; display: flex; flex-wrap: wrap; gap: 10px; min-height: 80px; }
+  
+  /* Blok Kode Scratch */
+  .block { padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: grab; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: transform 0.1s; width: fit-content; position: relative; }
+  .block:active { cursor: grabbing; }
+  .block.dragging { opacity: 0.5; transform: scale(0.95); }
+  .block-color-1 { background: #9966ff; color: #fff; } /* Motion */
+  .block-color-2 { background: #ffab19; color: #fff; } /* Control/Events */
+  .block-color-3 { background: #4c97ff; color: #fff; } /* Looks */
+  .block-color-4 { background: #59c059; color: #fff; } /* Operators/Variables */
+  
+  /* Blok yang sudah di-drop */
+  .block-dropped { cursor: pointer; width: 100%; border-radius: 6px; box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+  .block-dropped:hover { filter: brightness(1.1); }
+
+  .feedback { margin-top: 16px; padding: 12px; border-radius: 8px; font-weight: 700; text-align: center; display: none; }
+  .feedback.success { display: block; background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid #4ade80; }
+  .feedback.error { display: block; background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid #f87171; }
+
+  /* --- HALAMAN HASIL --- */
+  #page-hasil { display: none; padding: 40px 30px; text-align: center; }
+  .trophy { font-size: 80px; margin-bottom: 20px; }
+  .final-score-box { background: #1e1e2f; border-radius: 16px; padding: 24px; margin-bottom: 24px; border: 2px solid #ffbd2e; }
+  .final-score-box h2 { font-size: 16px; color: #a0a5b8; margin-bottom: 8px; }
+  .final-score-box .big-score { font-size: 48px; font-weight: 900; color: #ffbd2e; line-height: 1; }
+  .final-detail { font-size: 14px; color: #cbd5e1; margin-top: 10px; line-height: 1.6; }
+
+  /* Animasi Confetti */
+  .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0; animation: fall 3s linear forwards; z-index: 10; }
+  @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+  
+  <!-- ================= HALAMAN IDENTITAS ================= -->
+  <div id="page-identitas">
+    <div class="logo">🐱</div>
+    <h1>Petualangan Algoritma</h1>
+    <p class="subtitle">Game Edukasi Informatika Kelas 7 - Scratch</p>
+    
+    <div class="form-group">
+      <label>Nama Lengkap</label>
+      <input type="text" id="inputNama" placeholder="Masukkan nama lengkapmu">
+    </div>
+    <div class="form-group">
+      <label>Nomor Absen</label>
+      <input type="number" id="inputAbsen" placeholder="Contoh: 15">
+    </div>
+    <div class="form-group">
+      <label>Kelas</label>
+      <input type="text" id="inputKelas" placeholder="Contoh: 7A">
+    </div>
+    
+    <button class="btn" onclick="mulaiGame()">🚀 Mulai Misi</button>
+    <p id="errorMsg" style="color:#f87171; font-size:13px; margin-top:12px; display:none;"></p>
+  </div>
+
+  <!-- ================= HALAMAN GAME ================= -->
+  <div id="page-game">
+    <div class="top-bar">
+      <div class="student-info">
+        👤 <span id="navNama">-</span><br>
+        🏫 <span id="navKelas">-</span> | No. <span id="navAbsen">-</span>
+      </div>
+      <div class="score-board">
+        <div style="font-size:11px; color:#a0a5b8; font-weight:700;">SKOR</div>
+        <div class="score" id="scoreDisplay">0</div>
+      </div>
+    </div>
+
+    <div class="level-title" id="levelTitle">Misi 1: Bergerak</div>
+    <div class="level-desc" id="levelDesc">Susun blok agar Kucing Scratch bergerak 10 langkah lalu memutar suara.</div>
+
+    <div class="workspace">
+      <!-- Area Drop -->
+      <div class="drop-zone" id="dropZone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+      
+      <!-- Area Bank Kode -->
+      <div class="code-bank" id="codeBank"></div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    
+    <button class="btn" id="btnCheck" onclick="cekJawaban()" style="background:#4c97ff; margin-top:20px;">✔ Periksa Susunan</button>
+    <button class="btn" id="btnNext" onclick="nextLevel()" style="display:none; background:#4ade80; color:#064e3b;">Misi Selanjutnya ➔</button>
+  </div>
+
+  <!-- ================= HALAMAN HASIL ================= -->
+  <div id="page-hasil">
+    <div class="trophy">🏆</div>
+    <h1 style="color:#4ade80; margin-bottom:10px;">Misi Selesai!</h1>
+    <p class="subtitle">Kamu telah menyelesaikan semua tantangan algoritma.</p>
+    
+    <div class="final-score-box">
+      <h2>Nilai Akhir Kamu</h2>
+      <div class="big-score" id="finalScore">100</div>
+      <div class="final-detail" id="finalDetail">
+        Nama: - <br> Kelas: - | Absen: -
+      </div>
+    </div>
+
+    <button class="btn btn-download" onclick="downloadHasil()">📥 Download Laporan Hasil</button>
+    <button class="btn" onclick="location.reload()" style="background:#3f4257; margin-top:10px; color:#fff;">🔄 Main Lagi</button>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   DATA LEVEL (URUTAN ALGORITMA SCRATCH)
+   ============================================================ */
+const LEVELS = [
+  {
+    title: "Misi 1: Gerak & Suara",
+    desc: "Kucing Scratch ingin menyapa! Susun blok agar ia bergerak 10 langkah, lalu memutar suara 'Meow'.",
+    correctOrder: ["bendera", "gerak", "suara"],
+    blocks: [
+      { id: "gerak", text: "bergerak 10 langkah", color: 1 },
+      { id: "suara", text: "putar suara Meow", color: 2 },
+      { id: "bendera", text: "ketika 🚩 diklik", color: 2 }
+    ]
+  },
+  {
+    title: "Misi 2: Perulangan (Loop)",
+    desc: "Kucing ingin berjalan keliling lapangan. Susun blok agar ia bergerak 4 kali dengan jeda.",
+    correctOrder: ["bendera", "ulangi", "gerak"],
+    blocks: [
+      { id: "ulangi", text: "ulangi 4 kali", color: 2 },
+      { id: "bendera", text: "ketika 🚩 diklik", color: 2 },
+      { id: "gerak", text: "bergerak 10 langkah", color: 1 }
+    ]
+  },
+  {
+    title: "Misi 3: Kondisi (If-Else)",
+    desc: "Jika kucing menyentuh warna merah, ia harus berhenti. Susun logikanya dengan benar!",
+    correctOrder: ["bendera", "jika", "berhenti"],
+    blocks: [
+      { id: "berhenti", text: "berhenti semua", color: 2 },
+      { id: "jika", text: "jika menyentuh warna merah?", color: 2 },
+      { id: "bendera", text: "ketika 🚩 diklik", color: 2 }
+    ]
+  },
+  {
+    title: "Misi 4: Variabel & Skor",
+    desc: "Kucing mengumpulkan koin. Susun blok agar skor bertambah 1 saat menyentuh koin.",
+    correctOrder: ["bendera", "ubah_skor", "jika_koin"],
+    blocks: [
+      { id: "jika_koin", text: "jika menyentuh Koin?", color: 2 },
+      { id: "ubah_skor", text: "ubah skor oleh 1", color: 4 },
+      { id: "bendera", text: "ketika 🚩 diklik", color: 2 }
+    ]
+  },
+  {
+    title: "Misi 5: Pesan Broadcast",
+    desc: "Saat game selesai, kirim pesan ke sprite lain. Susun urutan yang benar!",
+    correctOrder: ["bendera", "tunggu", "kirim_pesan"],
+    blocks: [
+      { id: "kirim_pesan", text: "kirim pesan 'Game Over'", color: 2 },
+      { id: "bendera", text: "ketika 🚩 diklik", color: 2 },
+      { id: "tunggu", text: "tunggu 3 detik", color: 2 }
+    ]
+  }
+];
+
+/* ============================================================
+   STATE GAME
+   ============================================================ */
+let siswa = { nama: '', absen: '', kelas: '' };
+let currentLevel = 0;
+let score = 0;
+let maxScore = 0;
+let startTime = null;
+let endTime = null;
+
+/* ============================================================
+   INISIALISASI & IDENTITAS
+   ============================================================ */
+function mulaiGame() {
+  const nama = document.getElementById('inputNama').value.trim();
+  const absen = document.getElementById('inputAbsen').value.trim();
+  const kelas = document.getElementById('inputKelas').value.trim();
+  const err = document.getElementById('errorMsg');
+
+  if (!nama || !absen || !kelas) {
+    err.textContent = '⚠️ Isi semua data identitas terlebih dahulu!';
+    err.style.display = 'block';
+    return;
+  }
+
+  siswa = { nama, absen, kelas };
+  document.getElementById('navNama').textContent = nama;
+  document.getElementById('navKelas').textContent = kelas;
+  document.getElementById('navAbsen').textContent = absen;
+  
+  startTime = new Date();
+  document.getElementById('page-identitas').style.display = 'none';
+  document.getElementById('page-game').style.display = 'block';
+  
+  loadLevel();
+}
+
+/* ============================================================
+   LOGIKA GAME (DRAG & DROP)
+   ============================================================ */
+function loadLevel() {
+  const level = LEVELS[currentLevel];
+  document.getElementById('levelTitle').textContent = level.title;
+  document.getElementById('levelDesc').textContent = level.desc;
+  
+  // Reset UI
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('btnCheck').style.display = 'block';
+  document.getElementById('btnNext').style.display = 'none';
+  
+  const dropZone = document.getElementById('dropZone');
+  dropZone.innerHTML = '';
+  dropZone.classList.remove('filled');
+  
+  const bank = document.getElementById('codeBank');
+  bank.innerHTML = '';
+  
+  // Acak blok di bank
+  const shuffledBlocks = [...level.blocks].sort(() => Math.random() - 0.5);
+  
+  shuffledBlocks.forEach(block => {
+    const el = document.createElement('div');
+    el.className = `block block-color-${block.color}`;
+    el.draggable = true;
+    el.id = `bank-${block.id}`;
+    el.dataset.id = block.id;
+    el.textContent = block.text;
+    
+    el.ondragstart = (e) => {
+      e.dataTransfer.setData('text/plain', block.id);
+      el.classList.add('dragging');
+    };
+    el.ondragend = () => el.classList.remove('dragging');
+    
+    bank.appendChild(el);
+  });
+}
+
+// Drag & Drop Events untuk Drop Zone
+function allowDrop(ev) {
+  ev.preventDefault();
+  document.getElementById('dropZone').classList.add('drag-over');
+}
+
+function dragLeave(ev) {
+  document.getElementById('dropZone').classList.remove('drag-over');
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag-over');
+  
+  const id = ev.dataTransfer.getData('text/plain');
+  const blockData = LEVELS[currentLevel].blocks.find(b => b.id === id);
+  if (!blockData) return;
+  
+  const bankEl = document.getElementById(`bank-${id}`);
+  if (bankEl) bankEl.remove(); // Hapus dari bank
+  
+  addDropBlock(blockData);
+}
+
+// Fungsi untuk menambahkan blok ke Drop Zone
+function addDropBlock(blockData) {
+  const dropZone = document.getElementById('dropZone');
+  dropZone.classList.add('filled');
+  
+  const el = document.createElement('div');
+  el.className = `block block-color-${blockData.color} block-dropped`;
+  el.textContent = blockData.text;
+  el.dataset.id = blockData.id;
+  
+  // Klik untuk mengembalikan ke bank (batal pilih)
+  el.onclick = () => {
+    el.remove();
+    if (dropZone.children.length === 0) dropZone.classList.remove('filled');
+    
+    // Kembalikan ke bank
+    const bank = document.getElementById('codeBank');
+    const newBankEl = document.createElement('div');
+    newBankEl.className = `block block-color-${blockData.color}`;
+    newBankEl.draggable = true;
+    newBankEl.id = `bank-${blockData.id}`;
+    newBankEl.dataset.id = blockData.id;
+    newBankEl.textContent = blockData.text;
+    newBankEl.ondragstart = (e) => {
+      e.dataTransfer.setData('text/plain', blockData.id);
+      newBankEl.classList.add('dragging');
+    };
+    newBankEl.ondragend = () => newBankEl.classList.remove('dragging');
+    bank.appendChild(newBankEl);
+  };
+  
+  dropZone.appendChild(el);
+}
+
+/* ============================================================
+   CEK JAWABAN
+   ============================================================ */
+function cekJawaban() {
+  const dropZone = document.getElementById('dropZone');
+  const droppedBlocks = Array.from(dropZone.children).map(el => el.dataset.id);
+  const correctOrder = LEVELS[currentLevel].correctOrder;
+  const feedbackEl = document.getElementById('feedback');
+  
+  if (droppedBlocks.length === 0) {
+    feedbackEl.className = 'feedback error';
+    feedbackEl.textContent = '❌ Susun dulu blok kodenya!';
+    return;
+  }
+  
+  // Cek apakah urutan sama persis
+  let isCorrect = true;
+  if (droppedBlocks.length !== correctOrder.length) {
+    isCorrect = false;
+  } else {
+    for (let i = 0; i < correctOrder.length; i++) {
+      if (droppedBlocks[i] !== correctOrder[i]) {
+        isCorrect = false; break;
+      }
+    }
+  }
+  
+  if (isCorrect) {
+    score += 20; // 5 level x 20 = 100
+    document.getElementById('scoreDisplay').textContent = score;
+    feedbackEl.className = 'feedback success';
+    feedbackEl.textContent = '✅ Hebat! Susunan algoritma kamu benar!';
+    
+    document.getElementById('btnCheck').style.display = 'none';
+    document.getElementById('btnNext').style.display = 'block';
+    
+    if (currentLevel === LEVELS.length - 1) {
+      document.getElementById('btnNext').textContent = '🏁 Lihat Hasil Akhir';
+    }
+  } else {
+    feedbackEl.className = 'feedback error';
+    feedbackEl.textContent = '❌ Ups, urutannya masih salah. Coba klik blok untuk mengembalikan dan susun ulang!';
+  }
+}
+
+/* ============================================================
+   NEXT LEVEL & HASIL AKHIR
+   ============================================================ */
+function nextLevel() {
+  currentLevel++;
+  if (currentLevel < LEVELS.length) {
+    loadLevel();
+  } else {
+    showHasil();
+  }
+}
+
+function showHasil() {
+  endTime = new Date();
+  document.getElementById('page-game').style.display = 'none';
+  document.getElementById('page-hasil').style.display = 'block';
+  
+  const waktuPengerjaan = Math.round((endTime - startTime) / 1000);
+  const menit = Math.floor(waktuPengerjaan / 60);
+  const detik = waktuPengerjaan % 60;
+
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('finalDetail').innerHTML = `
+    <b>${siswa.nama}</b><br>
+    Kelas ${siswa.kelas} — No. Absen ${siswa.absen}<br>
+    Waktu: ${menit} menit ${detik} detik
+  `;
+  
+  // Efek Confetti Sederhana
+  buatConfetti();
+}
+
+function buatConfetti() {
+  const colors = ['#ffbd2e', '#4ade80', '#4c97ff', '#ff6b6b', '#9966ff'];
+  for(let i=0; i<50; i++) {
+    const conf = document.createElement('div');
+    conf.className = 'confetti';
+    conf.style.left = Math.random() * 100 + '%';
+    conf.style.top = '-10px';
+    conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    conf.style.animationDelay = Math.random() * 2 + 's';
+    document.getElementById('page-hasil').appendChild(conf);
+    
+    // Hapus setelah selesai
+    setTimeout(() => conf.remove(), 5000);
+  }
+}
+
+/* ============================================================
+   DOWNLOAD HASIL (.TXT)
+   ============================================================ */
+function downloadHasil() {
+  const waktuPengerjaan = Math.round((endTime - startTime) / 1000);
+  const menit = Math.floor(waktuPengerjaan / 60);
+  const detik = waktuPengerjaan % 60;
+  
+  const teksLaporan = 
+`========================================
+   LAPORAN HASIL GAME EDUKASI SCRATCH
+========================================
+Mata Pelajaran : Informatika
+Bab            : Algoritma & Pemrograman Scratch
+
+--- IDENTITAS SISWA ---
+Nama Lengkap   : ${siswa.nama}
+Kelas          : ${siswa.kelas}
+Nomor Absen    : ${siswa.absen}
+
+--- HASIL PENGERJAAN ---
+Nilai Akhir    : ${score} / 100
+Level Selesai  : 5 dari 5 Misi
+Waktu Selesai  : ${menit} menit ${detik} detik
+Tanggal        : ${new Date().toLocaleDateString('id-ID')}
+========================================
+`;
+
+  const blob = new Blob([teksLaporan], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Hasil_Game_Scratch_${siswa.nama.replace(/\s+/g, '_')}_${siswa.kelas}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
