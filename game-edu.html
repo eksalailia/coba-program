@@ -44,25 +44,25 @@
   
   /* Area Tujuan (Drop Zone) */
   .drop-zone { background: #11111a; border: 3px dashed #4b5563; border-radius: 12px; padding: 16px; min-height: 150px; display: flex; flex-direction: column; gap: 8px; position: relative; }
-  .drop-zone::before { content: "Susun Blok Kode di Sini"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #4b5563; font-weight: 700; font-size: 14px; pointer-events: none; }
+  .drop-zone::before { content: "Klik blok di bawah untuk menyusun kode di sini"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #4b5563; font-weight: 700; font-size: 14px; pointer-events: none; text-align: center; width: 80%; }
   .drop-zone.filled::before { display: none; }
-  .drop-zone.drag-over { border-color: #ffbd2e; background: #1a1a2e; }
 
   /* Area Pilihan (Bank Kode) */
   .code-bank { background: #1e1e2f; border-radius: 12px; padding: 16px; display: flex; flex-wrap: wrap; gap: 10px; min-height: 80px; }
   
   /* Blok Kode Scratch */
-  .block { padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: grab; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: transform 0.1s; width: fit-content; position: relative; }
-  .block:active { cursor: grabbing; }
-  .block.dragging { opacity: 0.5; transform: scale(0.95); }
+  .block { padding: 12px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: transform 0.1s, opacity 0.2s; width: fit-content; }
+  .block:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
   .block-color-1 { background: #9966ff; color: #fff; } /* Motion */
   .block-color-2 { background: #ffab19; color: #fff; } /* Control/Events */
   .block-color-3 { background: #4c97ff; color: #fff; } /* Looks */
   .block-color-4 { background: #59c059; color: #fff; } /* Operators/Variables */
   
   /* Blok yang sudah di-drop */
-  .block-dropped { cursor: pointer; width: 100%; border-radius: 6px; box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+  .block-dropped { cursor: pointer; width: 100%; border-radius: 6px; box-shadow: 0 3px 0 rgba(0,0,0,0.2); position: relative; }
+  .block-dropped::after { content: "✕"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; opacity: 0.5; }
   .block-dropped:hover { filter: brightness(1.1); }
+  .block-dropped:hover::after { opacity: 1; }
 
   .feedback { margin-top: 16px; padding: 12px; border-radius: 8px; font-weight: 700; text-align: center; display: none; }
   .feedback.success { display: block; background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid #4ade80; }
@@ -122,11 +122,11 @@
     </div>
 
     <div class="level-title" id="levelTitle">Misi 1: Bergerak</div>
-    <div class="level-desc" id="levelDesc">Susun blok agar Kucing Scratch bergerak 10 langkah lalu memutar suara.</div>
+    <div class="level-desc" id="levelDesc">Kucing Scratch ingin menyapa! Susun blok agar ia bergerak 10 langkah, lalu memutar suara 'Meow'.</div>
 
     <div class="workspace">
       <!-- Area Drop -->
-      <div class="drop-zone" id="dropZone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+      <div class="drop-zone" id="dropZone"></div>
       
       <!-- Area Bank Kode -->
       <div class="code-bank" id="codeBank"></div>
@@ -221,7 +221,6 @@ const LEVELS = [
 let siswa = { nama: '', absen: '', kelas: '' };
 let currentLevel = 0;
 let score = 0;
-let maxScore = 0;
 let startTime = null;
 let endTime = null;
 
@@ -253,7 +252,7 @@ function mulaiGame() {
 }
 
 /* ============================================================
-   LOGIKA GAME (DRAG & DROP)
+   LOGIKA GAME (KLIK UNTUK MENYUSUN)
    ============================================================ */
 function loadLevel() {
   const level = LEVELS[currentLevel];
@@ -279,49 +278,23 @@ function loadLevel() {
   shuffledBlocks.forEach(block => {
     const el = document.createElement('div');
     el.className = `block block-color-${block.color}`;
-    el.draggable = true;
-    el.id = `bank-${block.id}`;
     el.dataset.id = block.id;
     el.textContent = block.text;
     
-    el.ondragstart = (e) => {
-      e.dataTransfer.setData('text/plain', block.id);
-      el.classList.add('dragging');
-    };
-    el.ondragend = () => el.classList.remove('dragging');
+    // Event: KLIK untuk memindahkan ke area susun
+    el.onclick = () => pindahKeDropZone(block, el);
     
     bank.appendChild(el);
   });
 }
 
-// Drag & Drop Events untuk Drop Zone
-function allowDrop(ev) {
-  ev.preventDefault();
-  document.getElementById('dropZone').classList.add('drag-over');
-}
-
-function dragLeave(ev) {
-  document.getElementById('dropZone').classList.remove('drag-over');
-}
-
-function drop(ev) {
-  ev.preventDefault();
-  document.getElementById('dropZone').classList.remove('drag-over');
-  
-  const id = ev.dataTransfer.getData('text/plain');
-  const blockData = LEVELS[currentLevel].blocks.find(b => b.id === id);
-  if (!blockData) return;
-  
-  const bankEl = document.getElementById(`bank-${id}`);
-  if (bankEl) bankEl.remove(); // Hapus dari bank
-  
-  addDropBlock(blockData);
-}
-
-// Fungsi untuk menambahkan blok ke Drop Zone
-function addDropBlock(blockData) {
+// Fungsi memindahkan blok dari Bank ke Drop Zone
+function pindahKeDropZone(blockData, bankElement) {
   const dropZone = document.getElementById('dropZone');
   dropZone.classList.add('filled');
+  
+  // Sembunyikan elemen di bank
+  bankElement.style.display = 'none';
   
   const el = document.createElement('div');
   el.className = `block block-color-${blockData.color} block-dropped`;
@@ -331,22 +304,11 @@ function addDropBlock(blockData) {
   // Klik untuk mengembalikan ke bank (batal pilih)
   el.onclick = () => {
     el.remove();
-    if (dropZone.children.length === 0) dropZone.classList.remove('filled');
+    bankElement.style.display = 'flex'; // Munculkan lagi di bank
     
-    // Kembalikan ke bank
-    const bank = document.getElementById('codeBank');
-    const newBankEl = document.createElement('div');
-    newBankEl.className = `block block-color-${blockData.color}`;
-    newBankEl.draggable = true;
-    newBankEl.id = `bank-${blockData.id}`;
-    newBankEl.dataset.id = blockData.id;
-    newBankEl.textContent = blockData.text;
-    newBankEl.ondragstart = (e) => {
-      e.dataTransfer.setData('text/plain', blockData.id);
-      newBankEl.classList.add('dragging');
-    };
-    newBankEl.ondragend = () => newBankEl.classList.remove('dragging');
-    bank.appendChild(newBankEl);
+    if (dropZone.children.length === 0) {
+      dropZone.classList.remove('filled');
+    }
   };
   
   dropZone.appendChild(el);
@@ -363,7 +325,7 @@ function cekJawaban() {
   
   if (droppedBlocks.length === 0) {
     feedbackEl.className = 'feedback error';
-    feedbackEl.textContent = '❌ Susun dulu blok kodenya!';
+    feedbackEl.textContent = '❌ Susun dulu blok kodenya dengan cara diklik!';
     return;
   }
   
@@ -393,7 +355,7 @@ function cekJawaban() {
     }
   } else {
     feedbackEl.className = 'feedback error';
-    feedbackEl.textContent = '❌ Ups, urutannya masih salah. Coba klik blok untuk mengembalikan dan susun ulang!';
+    feedbackEl.textContent = '❌ Ups, urutannya masih salah. Klik blok di atas untuk mengembalikan dan susun ulang!';
   }
 }
 
