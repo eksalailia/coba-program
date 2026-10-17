@@ -447,23 +447,20 @@ async function kirimKeGoogle(nilai, benar, salah, kosong, detailJawaban) {
   };
 
   try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
-    const result = await res.json();
-    if (result.result === 'success') {
-      statusEl.innerHTML = '✅ Nilai berhasil dikirim ke guru.';
-      statusEl.style.color = '#38a169';
-    } else {
-      throw new Error(result.message || 'Gagal');
-    }
-  } catch (err) {
-    statusEl.innerHTML = '⚠️ Gagal mengirim nilai otomatis. Tunjukkan halaman ini ke guru.';
-    statusEl.style.color = '#e53e3e';
-    console.error('Kirim gagal:', err);
-  }
+    
+    // Cari bagian ini di kodemu:
+const res = await fetch(SCRIPT_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain' },
+  body: JSON.stringify(payload)
+});
+const result = await res.json();
+if (result.result === 'success') {
+  statusEl.innerHTML = '✅ Nilai berhasil dikirim ke guru.';
+  statusEl.style.color = '#38a169';
+} else {
+  throw new Error(result.message || 'Gagal');
+}
 }
 
 /* ============================================================
