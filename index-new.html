@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latihan Soal — Analisis Data & Spreadsheet Kelas 7</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+  body { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; padding:16px; color:#2d3748; }
+  .container { max-width:760px; margin:0 auto; }
+  .card { background:#fff; border-radius:16px; padding:24px; box-shadow:0 10px 40px rgba(0,0,0,.2); margin-bottom:16px; }
+  h1 { font-size:22px; color:#4a5568; margin-bottom:6px; }
+  h2 { font-size:18px; color:#4a5568; margin-bottom:14px; border-left:4px solid #667eea; padding-left:10px; }
+  .subtitle { color:#718096; font-size:13px; margin-bottom:20px; }
+  label { display:block; font-size:13px; font-weight:600; margin:12px 0 6px; color:#4a5568; }
+  input, select { width:100%; padding:12px 14px; border:2px solid #e2e8f0; border-radius:10px; font-size:15px; outline:none; transition:.2s; background:#fff; }
+  input:focus, select:focus { border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,.15); }
+  .btn { background:#667eea; color:#fff; border:none; padding:14px 24px; border-radius:10px; cursor:pointer; font-weight:700; font-size:15px; transition:.2s; width:100%; margin-top:16px; }
+  .btn:hover:not(:disabled) { background:#5a67d8; transform:translateY(-1px); }
+  .btn:disabled { background:#cbd5e0; cursor:not-allowed; }
+  .btn-success { background:#38a169; } .btn-success:hover:not(:disabled) { background:#2f855a; }
+  .btn-warning { background:#ed8936; } .btn-warning:hover:not(:disabled) { background:#dd6b20; }
+  .info-box { background:#ebf8ff; border-left:4px solid #4299e1; padding:12px 16px; border-radius:8px; font-size:13px; color:#2c5282; margin-bottom:16px; }
+
+  /* TIMER */
+  .timer-bar {
+    background:#fff; border-radius:12px; padding:12px 18px; margin-bottom:12px;
+    display:flex; justify-content:space-between; align-items:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+    position:sticky; top:8px; z-index:20;
+  }
+  .timer-label { font-size:13px; font-weight:600; color:#4a5568; }
+  .timer-clock { font-size:22px; font-weight:800; color:#38a169; font-variant-numeric:tabular-nums; }
+  .timer-clock.warning { color:#ed8936; }
+  .timer-clock.danger { color:#e53e3e; animation:pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  .question-header { display:flex; justify-content:space-between; align-items:center; background:#667eea; color:#fff; padding:12px 18px; border-radius:12px; margin-bottom:18px; box-shadow:0 4px 12px rgba(102,126,234,.3); }
+  .question-header strong { font-size:15px; }
+  .progress-bar { height:6px; background:#e2e8f0; border-radius:3px; margin-top:8px; overflow:hidden; }
+  .progress-fill { height:100%; background:#38a169; transition:width .3s; }
+
+  .question-text { font-size:16px; line-height:1.7; margin-bottom:16px; font-weight:600; color:#1a202c; }
+  .code-block { background:#2d3748; color:#f7fafc; padding:14px 16px; border-radius:10px; font-family:'Courier New',monospace; font-size:14px; margin:10px 0 16px; overflow-x:auto; line-height:1.6; white-space:pre; }
+
+  .option { display:flex; align-items:center; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; margin-bottom:10px; cursor:pointer; transition:.2s; font-size:15px; background:#fff; }
+  .option:hover { border-color:#667eea; background:#f7fafc; }
+  .option.selected { border-color:#667eea; background:#ebf4ff; }
+  .option input { width:auto; margin-right:12px; flex-shrink:0; accent-color:#667eea; }
+  .option-letter { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:#edf2f7; border-radius:6px; font-weight:700; font-size:13px; margin-right:12px; flex-shrink:0; color:#4a5568; }
+  .option.selected .option-letter { background:#667eea; color:#fff; }
+
+  .result-hero { text-align:center; padding:30px 20px; border-radius:16px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; margin-bottom:20px; }
+  .result-hero .score { font-size:64px; font-weight:800; line-height:1; margin:12px 0; }
+  .result-hero .grade { font-size:18px; font-weight:600; margin-top:8px; }
+  .result-hero .detail { font-size:14px; opacity:.9; margin-top:12px; }
+  .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+  .stat { background:#f7fafc; border-radius:10px; padding:14px; text-align:center; }
+  .stat .num { font-size:24px; font-weight:800; }
+  .stat .lbl { font-size:11px; color:#718096; font-weight:600; margin-top:2px; }
+  .stat.green .num { color:#38a169; } .stat.red .num { color:#e53e3e; } .stat.gray .num { color:#718096; }
+
+  .review-item { border:2px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:14px; background:#fff; }
+  .review-item.correct { border-color:#38a169; background:#f0fff4; }
+  .review-item.wrong { border-color:#e53e3e; background:#fff5f5; }
+  .review-item.skipped { border-color:#ed8936; background:#fffaf0; }
+  .review-status { display:inline-block; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; margin-bottom:10px; }
+  .status-correct { background:#38a169; color:#fff; } .status-wrong { background:#e53e3e; color:#fff; } .status-skip { background:#ed8936; color:#fff; }
+  .review-q { font-size:14px; font-weight:600; margin-bottom:10px; line-height:1.6; }
+  .review-opt { padding:10px 12px; border-radius:8px; margin-bottom:6px; font-size:13px; border:1.5px solid #e2e8f0; }
+  .review-opt.answer-key { border-color:#38a169; background:#f0fff4; font-weight:600; }
+  .review-opt.answer-wrong { border-color:#e53e3e; background:#fff5f5; }
+  .explanation { background:#fefcbf; border-left:3px solid #ecc94b; padding:10px 14px; border-radius:6px; font-size:13px; color:#744210; margin-top:10px; line-height:1.6; }
+  .explanation strong { color:#975a16; }
+
+  .identity-bar { background:#fff; border-radius:12px; padding:12px 16px; margin-bottom:12px; font-size:13px; color:#4a5568; box-shadow:0 2px 8px rgba(0,0,0,.1); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  .nav-buttons { display:flex; gap:10px; margin-top:18px; }
+  .nav-buttons .btn { flex:1; }
+  .btn-outline { background:#fff; color:#667eea; border:2px solid #667eea; }
+  .btn-outline:hover:not(:disabled) { background:#ebf4ff; transform:none; }
+  .hidden { display:none !important; }
+  @media (max-width:500px) { .card{padding:18px;} h1{font-size:19px;} .result-hero .score{font-size:52px;} .timer-clock{font-size:18px;} }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- IDENTITAS -->
+  <div id="page-identitas" class="card">
+    <h1>📝 Latihan Soal Informatika</h1>
+    <p class="subtitle">Analisis Data & Spreadsheet — Kelas 7</p>
+    <div class="info-box">
+      ℹ️ <b>Petunjuk:</b><br>
+      • Isi identitas dengan benar<br>
+      • Soal <b>25 pilihan ganda</b> diacak untuk setiap siswa<br>
+      • Waktu pengerjaan <b>30 menit</b> — timer berjalan otomatis<br>
+      • <b>Soal tidak bisa kembali ke sebelumnya</b><br>
+      • Nilai dan pembahasan muncul di akhir, otomatis terkirim ke guru
+    </div>
+    <label>Nama Lengkap *</label>
+    <input type="text" id="inputNama" placeholder="Contoh: Ahmad Fauzan" autocomplete="off">
+    <label>Nomor Absen *</label>
+    <input type="number" id="inputAbsen" placeholder="Contoh: 12" min="1" max="50">
+    <label>Kelas *</label>
+    <input type="text" id="inputKelas" placeholder="Contoh: 7A" autocomplete="off">
+    <button class="btn btn-success" onclick="mulaiSoal()">🚀 Mulai Latihan</button>
+    <p id="errorMsg" style="color:#e53e3e; font-size:13px; margin-top:12px; text-align:center;"></p>
+  </div>
+
+  <!-- SOAL -->
+  <div id="page-soal" class="hidden">
+    <div class="timer-bar">
+      <span class="timer-label">⏱ Sisa Waktu</span>
+      <span class="timer-clock" id="timerClock">30:00</span>
+    </div>
+    <div class="identity-bar">
+      <span>👤 <b id="navNama">-</b></span>
+      <span>🏫 Kelas <b id="navKelas">-</b> | Absen <b id="navAbsen">-</b></span>
+    </div>
+    <div class="question-header">
+      <strong>Soal <span id="qNum">1</span> / 25</strong>
+      <span id="qAnswered" style="font-size:12px; opacity:.9;">0 dijawab</span>
+    </div>
+    <div class="progress-bar" style="margin-bottom:16px;">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="card">
+      <div class="question-text" id="qText"></div>
+      <div id="qCodeBlock"></div>
+      <div id="qOptions"></div>
+    </div>
+    <div class="nav-buttons">
+      <!-- TOMBOL SEBELUMNYA DIHAPUS -->
+      <button class="btn" id="btnNext" onclick="nextSoal()">Selanjutnya ▶</button>
+      <button class="btn btn-warning hidden" id="btnFinish" onclick="selesaiSoal()">✅ Selesai</button>
+    </div>
+  </div>
+
+  <!-- HASIL -->
+  <div id="page-hasil" class="hidden">
+    <div class="card">
+      <div class="result-hero">
+        <div style="font-size:14px; opacity:.9;">Nilai Latihan</div>
+        <div class="score" id="finalScore">0</div>
+        <div class="grade" id="finalGrade">-</div>
+        <div class="detail" id="finalDetail">-</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat green"><div class="num" id="statBenar">0</div><div class="lbl">BENAR</div></div>
+        <div class="stat red"><div class="num" id="statSalah">0</div><div class="lbl">SALAH</div></div>
+        <div class="stat gray"><div class="num" id="statKosong">0</div><div class="lbl">KOSONG</div></div>
+      </div>
+      <div class="info-box" id="identityResult" style="margin-bottom:0;"></div>
+      <div id="uploadStatus" style="margin-top:14px; font-size:13px; text-align:center;"></div>
+      <button class="btn" onclick="location.reload()" style="margin-top:20px;">🔄 Ulangi Latihan</button>
+    </div>
+    <div class="card">
+      <h2>📖 Pembahasan Soal</h2>
+      <div id="reviewList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT KAMU
+// ============================================================
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrHeQFiFgTZKptpWeQUc6CjbgAwKOw_qiFsQn3hK5NZRxwqRN10qTjprXOmbtU6YYPXA/exec';
+
+/* ============================================================
+   BANK SOAL — 50 SOAL (25 diambil acak)
+   ============================================================ */
+const BANK_SOAL = [
+  { q:"Perhatikan data berikut:", code:"A1: 10   A2: 20   A3: 30   A4: 40", opts:["=SUM(A1:A4) menghasilkan 100","=SUM(A1:A4) menghasilkan 60","=SUM(A1:A4) menghasilkan 50","=SUM(A1:A4) menghasilkan 40"], key:0, exp:"SUM menjumlahkan semua angka dalam range. 10+20+30+40 = 100." },
+  { q:"Fungsi SUM digunakan untuk...", opts:["Mencari nilai rata-rata","Menjumlahkan data angka","Menghitung banyak data","Mencari nilai terbesar"], key:1, exp:"SUM = penjumlahan. Contoh: =SUM(B2:B10)." },
+  { q:"Rumus yang benar untuk menjumlahkan sel B2 sampai B6 adalah...", opts:["=JUMLAH(B2:B6)","=TOTAL(B2:B6)","=SUM(B2:B6)","=PLUS(B2:B6)"], key:2, exp:"Rumus SUM dalam Excel/Spreadsheet: =SUM(range)." },
+  { q:"Perhatikan tabel nilai berikut:", code:"B2: 75   B3: 80   B4: 90   B5: 85", opts:["330","320","310","340"], key:0, exp:"=SUM(B2:B5) = 75 + 80 + 90 + 85 = 330." },
+  { q:"Fungsi COUNT digunakan untuk...", opts:["Menjumlahkan angka","Menghitung banyaknya data angka","Mencari nilai terkecil","Mencari rata-rata"], key:1, exp:"COUNT menghitung jumlah sel yang berisi angka." },
+  { q:"Perhatikan data berikut:", code:"A1: 5   A2: teks   A3: 10   A4: (kosong)   A5: 15", opts:["=COUNT(A1:A5) menghasilkan 3","=COUNT(A1:A5) menghasilkan 5","=COUNT(A1:A5) menghasilkan 4","=COUNT(A1:A5) menghasilkan 2"], key:0, exp:"COUNT hanya menghitung sel berisi ANGKA. Sel A2 teks dan A4 kosong tidak dihitung." },
+  { q:"Perbedaan COUNT dan COUNTA adalah...", opts:["Tidak ada perbedaan","COUNT hitung angka, COUNTA hitung semua sel tidak kosong","COUNT hitung teks, COUNTA hitung angka","COUNTA untuk tanggal saja"], key:1, exp:"COUNT hanya ANGKA. COUNTA semua sel tidak kosong (termasuk teks)." },
+  { q:"Fungsi MIN digunakan untuk...", opts:["Mencari nilai terbesar","Mencari nilai terkecil","Menjumlahkan data","Menghitung rata-rata"], key:1, exp:"MIN = minimum = nilai terkecil." },
+  { q:"Perhatikan data:", code:"A1: 45   A2: 78   A3: 62   A4: 90   A5: 55", opts:["=MIN(A1:A5) menghasilkan 45","=MIN(A1:A5) menghasilkan 90","=MIN(A1:A5) menghasilkan 55","=MIN(A1:A5) menghasilkan 62"], key:0, exp:"MIN mencari nilai terkecil. Dari data, terkecil = 45." },
+  { q:"Fungsi MAX digunakan untuk...", opts:["Mencari nilai terkecil","Mencari nilai terbesar","Menghitung rata-rata","Menjumlahkan data"], key:1, exp:"MAX = maksimum = nilai terbesar." },
+  { q:"Data: B2=67, B3=89, B4=92, B5=78. Hasil =MAX(B2:B5) adalah...", opts:["67","89","92","78"], key:2, exp:"MAX mencari nilai terbesar. Dari data, terbesar = 92." },
+  { q:"Kombinasi rumus untuk mencari selisih nilai tertinggi dan terendah adalah...", opts:["=SUM(A1:A10)-MIN(A1:A10)","=MAX(A1:A10)-MIN(A1:A10)","=MAX(A1:A10)+MIN(A1:A10)","=COUNT(A1:A10)-MAX(A1:A10)"], key:1, exp:"Selisih = MAX - MIN." },
+  { q:"Fungsi AVERAGE digunakan untuk...", opts:["Menjumlahkan data","Mencari rata-rata data","Mencari nilai terbesar","Menghitung banyak data"], key:1, exp:"AVERAGE = rata-rata. =AVERAGE(range)." },
+  { q:"Data nilai: 70, 80, 90, 100. Rata-ratanya adalah...", opts:["80","85","90","75"], key:1, exp:"Rata-rata = (70+80+90+100) ÷ 4 = 85." },
+  { q:"Perhatikan data:", code:"A1: 10   A2: 20   A3: 30   A4: 40", opts:["=AVERAGE(A1:A4) menghasilkan 25","=AVERAGE(A1:A4) menghasilkan 100","=AVERAGE(A1:A4) menghasilkan 40","=AVERAGE(A1:A4) menghasilkan 10"], key:0, exp:"Rata-rata = (10+20+30+40) ÷ 4 = 25." },
+  { q:"Rumus rata-rata jika data ada di sel C2 sampai C11 adalah...", opts:["=RATA(C2:C11)","=AVG(C2:C11)","=AVERAGE(C2:C11)","=MEAN(C2:C11)"], key:2, exp:"Rumus standar: =AVERAGE(range)." },
+  { q:"Fungsi IF digunakan untuk...", opts:["Menjumlahkan data bersyarat","Membuat keputusan berdasarkan kondisi (benar/salah)","Mencari rata-rata","Menghitung data"], key:1, exp:"IF = fungsi logika. Format: =IF(kondisi, nilai_benar, nilai_salah)." },
+  { q:"Rumus IF yang benar untuk menampilkan 'LULUS' jika nilai ≥ 75, dan 'REMEDIAL' jika kurang adalah...", opts:["=IF(A1>=75,'LULUS','REMEDIAL')","=IF(A1>75,'LULUS','REMEDIAL')","=IF(A1=75,'LULUS','REMEDIAL')","=IF(A1<75,'LULUS','REMEDIAL')"], key:0, exp:"Karena syarat LULUS nilai ≥ 75, gunakan operator >=." },
+  { q:"Jika sel A1 berisi 80, hasil =IF(A1>=75,'LULUS','REMEDIAL') adalah...", opts:["REMEDIAL","LULUS","80","Error"], key:1, exp:"80>=75 adalah BENAR, maka hasil 'LULUS'." },
+  { q:"Untuk memberi grade: A jika ≥90, B jika ≥80, C jika ≥70, selain itu D. Rumus yang benar adalah...", opts:["=IF(A1>=90,'A',IF(A1>=80,'B',IF(A1>=70,'C','D')))","=IF(A1='A',90,IF(A1='B',80,70))","=IF(A1>90,'A','B','C','D')","=IF(90,A1,'A')"], key:0, exp:"IF bertingkat: cek kondisi tertinggi dulu." },
+  { q:"Hasil dari =IF(5>3,'YA','TIDAK') adalah...", opts:["YA","TIDAK","5","Error"], key:0, exp:"5>3 adalah BENAR, maka hasil 'YA'." },
+  { q:"Fungsi COUNTIF digunakan untuk...", opts:["Menjumlahkan data dengan syarat","Menghitung banyak data dengan syarat tertentu","Mencari rata-rata dengan syarat","Mencari nilai terbesar"], key:1, exp:"COUNTIF = COUNT + IF. Format: =COUNTIF(range, kriteria)." },
+  { q:"Perhatikan data nilai:", code:"A1: 80   A2: 90   A3: 75   A4: 90   A5: 85", opts:["=COUNTIF(A1:A5,90) menghasilkan 2","=COUNTIF(A1:A5,90) menghasilkan 5","=COUNTIF(A1:A5,90) menghasilkan 3","=COUNTIF(A1:A5,90) menghasilkan 1"], key:0, exp:"Nilai 90 ada di A2 dan A4 = 2 buah." },
+  { q:"Untuk menghitung berapa siswa yang LULUS (nilai ≥ 75) pada range B2:B30, gunakan...", opts:["=COUNTIF(B2:B30,'>=75')","=COUNTIF(B2:B30,75)","=COUNT(B2:B30)","=SUMIF(B2:B30,'>=75')"], key:0, exp:"COUNTIF dengan kriteria >=75: =COUNTIF(B2:B30,\">=75\")." },
+  { q:"Fungsi SUMIF digunakan untuk...", opts:["Menghitung banyak data dengan syarat","Menjumlahkan data yang memenuhi syarat tertentu","Mencari rata-rata dengan syarat","Mencari nilai terkecil"], key:1, exp:"SUMIF = SUM + IF. Format: =SUMIF(range_kriteria, kriteria, range_jumlah)." },
+  { q:"Perhatikan tabel:", code:"A1: Laki-laki   B1: 80\nA2: Perempuan   B2: 90\nA3: Laki-laki   B3: 75\nA4: Laki-laki   B4: 85", opts:["=SUMIF(A1:A4,'Laki-laki',B1:B4) menghasilkan 165","=SUMIF(A1:A4,'Laki-laki',B1:B4) menghasilkan 240","=SUMIF(A1:A4,'Laki-laki',B1:B4) menghasilkan 250","=SUMIF(A1:A4,'Laki-laki',B1:B4) menghasilkan 75"], key:1, exp:"Jumlahkan B untuk A='Laki-laki': B1(80) + B3(75) + B4(85) = 240." },
+  { q:"Format penulisan SUMIF yang benar adalah...", opts:["=SUMIF(range_jumlah, kriteria, range_kriteria)","=SUMIF(kriteria, range, jumlah)","=SUMIF(range_kriteria, kriteria, range_jumlah)","=SUMIF(range, jumlah, kriteria)"], key:2, exp:"Urutan SUMIF: range_kriteria, kriteria, range_jumlah." },
+  { q:"Untuk menjumlahkan nilai siswa yang ≥ 75 dari range B2:B30, rumus yang benar adalah...", opts:["=SUMIF(B2:B30,'>=75')","=SUMIF(B2:B30,75)","=SUM(B2:B30)","=COUNTIF(B2:B30,'>=75')"], key:0, exp:"Karena range kriteria = range jumlah, cukup 2 argumen." },
+  { q:"Perbedaan COUNTIF dan SUMIF adalah...", opts:["Tidak ada perbedaan","COUNTIF menghitung banyak data, SUMIF menjumlahkan nilai data","COUNTIF untuk teks, SUMIF untuk angka saja","COUNTIF lebih cepat dari SUMIF"], key:1, exp:"COUNTIF = hitung banyak. SUMIF = jumlahkan nilai." },
+  { q:"Untuk mencari rata-rata nilai siswa yang LULUS (≥75) saja, kombinasi rumus yang tepat adalah...", opts:["=AVERAGE(B2:B30)","=SUMIF(B2:B30,'>=75')/COUNTIF(B2:B30,'>=75')","=MAX(B2:B30)","=COUNTIF(B2:B30,'>=75')"], key:1, exp:"Rata-rata lulus = SUMIF ÷ COUNTIF." },
+  { q:"Data nilai: 60, 70, 80, 90, 100. Rata-rata dan median adalah...", opts:["Rata-rata 80, median 80","Rata-rata 80, median 90","Rata-rata 75, median 80","Rata-rata 85, median 80"], key:0, exp:"Rata-rata = 400/5 = 80. Median = 80." },
+  { q:"Dalam spreadsheet, range A1:A10 artinya...", opts:["Sel A1 dan A10 saja","Semua sel dari A1 sampai A10","Sel A1 dikali A10","Sel A1 dibagi A10"], key:1, exp:"Tanda titik dua (:) menunjukkan range/rentang." },
+  { q:"Manakah penulisan rumus yang SALAH?", opts:["=SUM(A1:A5)","=AVERAGE(B2:B10)","=IF(C1>75,'Lulus','Gagal')","SUM(A1:A5)"], key:3, exp:"Rumus WAJIB diawali tanda sama dengan (=)." },
+  { q:"Perhatikan tabel berikut:", code:"A1: Nama   B1: Nilai\nA2: Andi   B2: 85\nA3: Budi   B3: 70\nA4: Citra  B4: 90", opts:["=AVERAGE(B2:B4) menghasilkan 81,67","=AVERAGE(B2:B4) menghasilkan 82","=AVERAGE(B2:B4) menghasilkan 245","=AVERAGE(B2:B4) menghasilkan 85"], key:0, exp:"Rata-rata = (85+70+90)/3 = 245/3 = 81,67." },
+  { q:"Data usia: 12, 13, 12, 14, 13, 12, 15. Nilai MIN, MAX, dan AVERAGE berturut-turut adalah...", opts:["12, 15, 13","13, 14, 12","12, 15, 12,86","15, 12, 13"], key:2, exp:"MIN=12, MAX=15. Rata-rata = 91/7 = 13." },
+  { q:"Hasil dari =IF(AND(A1>=75,B1>=75),'LULUS','REMEDIAL') adalah 'LULUS' jika...", opts:["A1 ≥ 75 ATAU B1 ≥ 75","A1 ≥ 75 DAN B1 ≥ 75","A1 = 75 dan B1 = 75","Hanya A1 ≥ 75"], key:1, exp:"AND = DAN = kedua kondisi harus BENAR." },
+  { q:"Fungsi untuk mencari rata-rata dengan kriteria tertentu adalah...", opts:["AVERAGE","AVERAGEIF","COUNTIF","SUMIF"], key:1, exp:"AVERAGEIF = rata-rata dengan syarat." },
+  { q:"Sebuah spreadsheet berisi data nilai 30 siswa. Untuk menghitung berapa siswa yang remedial (nilai < 75), rumus yang tepat adalah...", opts:["=SUM(B2:B31<75)","=COUNTIF(B2:B31,'<75')","=AVERAGE(B2:B31,'<75')","=MAX(B2:B31,'<75')"], key:1, exp:"COUNTIF dengan kriteria '<75'." },
+  { q:"Dalam =SUMIF(A1:A10,'Laki-laki',B1:B10), A1:A10 berfungsi sebagai...", opts:["Range yang dijumlahkan","Range kriteria","Kriteria pencarian","Hasil akhir"], key:1, exp:"A1:A10 = range tempat mencari kriteria." },
+  { q:"Rumus =IF(B2>=60,'Lulus',IF(B2>=40,'Cadangan','Gagal')) akan menghasilkan 'Cadangan' jika B2 bernilai...", opts:["70","60","45","30"], key:2, exp:"B2=45: kondisi ≥60 tidak, kondisi ≥40 ya, hasil 'Cadangan'." },
+  { q:"Fungsi MIN dan MAX pada data teks (huruf) akan...", opts:["Menghasilkan error","Mengabaikan teks dan hanya hitung angka","Menghitung teks juga","Menghasilkan 0"], key:1, exp:"MIN/MAX/AVERAGE/SUM/COUNT mengabaikan sel berisi TEKS." },
+  { q:"Diketahui A1=50, A2=75, A3=80, A4=65, A5=90. Hasil =COUNTIF(A1:A5,'>=70')-COUNTIF(A1:A5,'>=80') adalah...", opts:["3","2","1","0"], key:2, exp:"COUNTIF(≥70)=3, COUNTIF(≥80)=2, hasil 3-2=1." },
+  { q:"Fungsi yang tepat untuk menghitung banyaknya siswa dengan nilai di atas rata-rata adalah...", opts:["=COUNT(B2:B30)","=COUNTIF(B2:B30,'>'&AVERAGE(B2:B30))","=SUM(B2:B30)","=MAX(B2:B30)"], key:1, exp:"COUNTIF dengan kriteria dinamis: \">\" & AVERAGE(...)." },
+  { q:"Data penjualan: A1=Apel, A2=Jeruk, A3=Apel, A4=Apel. B1=1000, B2=2000, B3=1500, B4=2500. Hasil =SUMIF(A1:A4,'Apel',B1:B4) adalah...", opts:["5000","4000","3500","2500"], key:0, exp:"Apel: B1(1000)+B3(1500)+B4(2500) = 5000." },
+  { q:"Manakah yang BUKAN fungsi statistik dasar di spreadsheet?", opts:["SUM","AVERAGE","VLOOKUP","MAX"], key:2, exp:"VLOOKUP adalah fungsi pencarian, bukan statistik." },
+  { q:"Jika A1=5, A2=10, A3=15, maka =SUM(A1:A3)+SUM(A1,A3) menghasilkan...", opts:["45","50","60","30"], key:1, exp:"SUM(A1:A3)=30, SUM(A1,A3)=20, total 50." },
+  { q:"Operator perbandingan yang BUKAN termasuk dalam fungsi IF adalah...", opts:[">=","<=","<>","=<"], key:3, exp:"Penulisan '=<' salah, harusnya '<='." },
+  { q:"Data: A1=Merah, A2=Biru, A3=Merah, A4=Merah, A5=Hijau. Hasil =COUNTIF(A1:A5,'Merah') adalah...", opts:["1","2","3","5"], key:2, exp:"'Merah' muncul di A1, A3, A4 = 3 kali." },
+  { q:"Untuk menampilkan 'GENAP' jika angka di A1 habis dibagi 2, gunakan...", opts:["=IF(MOD(A1,2)=0,'GENAP','GANJIL')","=IF(A1/2,'GENAP','GANJIL')","=IF(A1>0,'GENAP','GANJIL')","=IF(A1=A1,'GENAP','GANJIL')"], key:0, exp:"MOD(A1,2)=0 artinya bilangan genap." },
+  { q:"Rumus =IF(B2>=60,'Lulus',IF(B2>=40,'Cadangan','Gagal')) — jika B2=30, hasilnya...", opts:["Lulus","Cadangan","Gagal","Error"], key:2, exp:"B2=30: ≥60 tidak, ≥40 tidak, hasil 'Gagal'." }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let siswa = { nama:'', absen:'', kelas:'' };
+let soalSiswa = [];
+let jawabanSiswa = [];
+let idxSoal = 0;
+let timerInterval = null;
+let detikSisa = 30 * 60; // 30 menit
+let sudahSelesai = false;
+
+/* ============================================================
+   MULAI
+   ============================================================ */
+function mulaiSoal() {
+  const nama = document.getElementById('inputNama').value.trim();
+  const absen = document.getElementById('inputAbsen').value.trim();
+  const kelas = document.getElementById('inputKelas').value.trim();
+  const errEl = document.getElementById('errorMsg');
+
+  if (!nama || !absen || !kelas) { errEl.textContent = '⚠️ Semua field identitas wajib diisi!'; return; }
+  if (nama.length < 3) { errEl.textContent = '⚠️ Nama terlalu pendek, isi nama lengkap!'; return; }
+  errEl.textContent = '';
+
+  siswa = { nama, absen, kelas };
+  document.getElementById('navNama').textContent = nama;
+  document.getElementById('navKelas').textContent = kelas;
+  document.getElementById('navAbsen').textContent = absen;
+
+  soalSiswa = shuffle([...BANK_SOAL]).slice(0, 25).map(s => {
+    const optsWithIdx = s.opts.map((text, i) => ({ text, isKey: i === s.key }));
+    const shuffled = shuffle(optsWithIdx);
+    return { q: s.q, code: s.code || '', opts: shuffled.map(o => o.text), key: shuffled.findIndex(o => o.isKey), exp: s.exp };
+  });
+  jawabanSiswa = new Array(25).fill(null);
+  idxSoal = 0;
+  sudahSelesai = false;
+
+  document.getElementById('page-identitas').classList.add('hidden');
+  document.getElementById('page-soal').classList.remove('hidden');
+  renderSoal();
+  mulaiTimer();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============================================================
+   TIMER
+   ============================================================ */
+function mulaiTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    detikSisa--;
+    updateTimerDisplay();
+    if (detikSisa <= 0) {
+      clearInterval(timerInterval);
+      alert('⏰ Waktu habis! Jawaban akan dikumpulkan otomatis.');
+      selesaiSoal(true);
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(detikSisa / 60);
+  const s = detikSisa % 60;
+  const el = document.getElementById('timerClock');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.remove('warning','danger');
+  if (detikSisa <= 60) el.classList.add('danger');
+  else if (detikSisa <= 300) el.classList.add('warning');
+}
+
+/* ============================================================
+   RENDER SOAL (TANPA TOMBOL PREV)
+   ============================================================ */
+function renderSoal() {
+  const s = soalSiswa[idxSoal];
+  document.getElementById('qNum').textContent = idxSoal + 1;
+  const answered = jawabanSiswa.filter(j => j !== null).length;
+  document.getElementById('qAnswered').textContent = answered + ' dijawab';
+  document.getElementById('progressFill').style.width = ((idxSoal + 1) / 25 * 100) + '%';
+  document.getElementById('qText').textContent = s.q;
+
+  const codeEl = document.getElementById('qCodeBlock');
+  if (s.code) codeEl.innerHTML = `<div class="code-block">${escapeHtml(s.code)}</div>`;
+  else codeEl.innerHTML = '';
+
+  const letters = ['A','B','C','D'];
+  document.getElementById('qOptions').innerHTML = s.opts.map((opt, i) => `
+    <label class="option ${jawabanSiswa[idxSoal] === i ? 'selected' : ''}" onclick="pilihJawaban(${i})">
+      <input type="radio" name="opt" ${jawabanSiswa[idxSoal] === i ? 'checked' : ''}>
+      <span class="option-letter">${letters[i]}</span>
+      <span>${escapeHtml(opt)}</span>
+    </label>
+  `).join('');
+
+  const btnNext = document.getElementById('btnNext');
+  const btnFinish = document.getElementById('btnFinish');
+  if (idxSoal === 24) { btnNext.classList.add('hidden'); btnFinish.classList.remove('hidden'); }
+  else { btnNext.classList.remove('hidden'); btnFinish.classList.add('hidden'); }
+}
+
+function pilihJawaban(i) { jawabanSiswa[idxSoal] = i; renderSoal(); }
+
+function nextSoal() {
+  if (idxSoal < 24) { idxSoal++; renderSoal(); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+/* ============================================================
+   SELESAI + KIRIM KE GOOGLE
+   ============================================================ */
+function selesaiSoal(force = false) {
+  if (sudahSelesai) return;
+  sudahSelesai = true;
+  if (timerInterval) clearInterval(timerInterval);
+
+  const kosong = jawabanSiswa.filter(j => j === null).length;
+  if (!force && kosong > 0) {
+    if (!confirm(`Masih ada ${kosong} soal belum dijawab. Yakin ingin selesai?`)) {
+      sudahSelesai = false;
+      if (!force) mulaiTimerLanjut();
+      return;
+    }
+  }
+
+  let benar = 0, salah = 0, tidak = 0;
+  const reviewHTML = [];
+  const detailJawabanLines = [];
+
+  soalSiswa.forEach((s, i) => {
+    const jw = jawabanSiswa[i];
+    const letters = ['A','B','C','D'];
+    const isCorrect = jw === s.key;
+    const isSkipped = jw === null;
+    if (isCorrect) benar++; else if (isSkipped) tidak++; else salah++;
+
+    const statusClass = isCorrect ? 'correct' : (isSkipped ? 'skipped' : 'wrong');
+    const statusLabel = isCorrect ? '✓ BENAR' : (isSkipped ? '— TIDAK DIJAWAB' : '✗ SALAH');
+    const statusBadge = isCorrect ? 'status-correct' : (isSkipped ? 'status-skip' : 'status-wrong');
+
+    let optsHTML = s.opts.map((opt, oi) => {
+      let cls = 'review-opt';
+      if (oi === s.key) cls += ' answer-key';
+      if (oi === jw && !isCorrect) cls += ' answer-wrong';
+      return `<div class="${cls}"><b>${letters[oi]}.</b> ${escapeHtml(opt)}
+        ${oi === s.key ? ' <span style="color:#38a169;">← Kunci</span>' : ''}
+        ${oi === jw && !isCorrect ? ' <span style="color:#e53e3e;">← Jawabanmu</span>' : ''}
+      </div>`;
+    }).join('');
+
+    let codeHTML = s.code ? `<div class="code-block" style="font-size:12px;padding:10px;">${escapeHtml(s.code)}</div>` : '';
+    reviewHTML.push(`
+      <div class="review-item ${statusClass}">
+        <span class="review-status ${statusBadge}">${statusLabel}</span>
+        <div class="review-q">Soal ${i+1}. ${escapeHtml(s.q)}</div>
+        ${codeHTML}${optsHTML}
+        <div class="explanation"><strong>💡 Pembahasan:</strong> ${escapeHtml(s.exp)}</div>
+      </div>
+    `);
+
+    detailJawabanLines.push(
+      `Soal ${i+1}: ${s.q}\n` +
+      `Jawaban siswa: ${jw !== null ? letters[jw] + '. ' + s.opts[jw] : '(kosong)'}\n` +
+      `Kunci: ${letters[s.key]}. ${s.opts[s.key]}\n` +
+      `Status: ${isCorrect ? 'BENAR' : (isSkipped ? 'KOSONG' : 'SALAH')}\n`
+    );
+  });
+
+  const nilai = Math.round(benar / 25 * 100);
+  let grade = 'Perlu Belajar Lagi 💪';
+  if (nilai >= 90) grade = 'Luar Biasa! 🏆';
+  else if (nilai >= 80) grade = 'Sangat Baik! 🌟';
+  else if (nilai >= 70) grade = 'Baik! 👍';
+  else if (nilai >= 60) grade = 'Cukup 📖';
+
+  document.getElementById('finalScore').textContent = nilai;
+  document.getElementById('finalGrade').textContent = grade;
+  document.getElementById('finalDetail').textContent = `${siswa.nama} • Kelas ${siswa.kelas} • Absen ${siswa.absen}`;
+  document.getElementById('statBenar').textContent = benar;
+  document.getElementById('statSalah').textContent = salah;
+  document.getElementById('statKosong').textContent = tidak;
+  document.getElementById('identityResult').innerHTML = `
+    <b>👤 ${escapeHtml(siswa.nama)}</b><br>
+    Kelas ${escapeHtml(siswa.kelas)} — No. Absen ${escapeHtml(siswa.absen)}<br>
+    Dikerjakan: ${new Date().toLocaleString('id-ID')}
+  `;
+  document.getElementById('reviewList').innerHTML = reviewHTML.join('');
+
+  document.getElementById('page-soal').classList.add('hidden');
+  document.getElementById('page-hasil').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  kirimKeGoogle(nilai, benar, salah, tidak, detailJawabanLines.join('\n'));
+}
+
+function mulaiTimerLanjut() {
+  timerInterval = setInterval(() => {
+    detikSisa--;
+    updateTimerDisplay();
+    if (detikSisa <= 0) {
+      clearInterval(timerInterval);
+      alert('⏰ Waktu habis!');
+      selesaiSoal(true);
+    }
+  }, 1000);
+}
+
+/* ============================================================
+   KIRIM KE GOOGLE APPS SCRIPT (SUDAH DIPERBAIKI)
+   ============================================================ */
+async function kirimKeGoogle(nilai, benar, salah, kosong, detailJawaban) {
+  const statusEl = document.getElementById('uploadStatus');
+  statusEl.innerHTML = '⏳ Mengirim nilai ke guru...';
+  statusEl.style.color = '#718096';
+
+  const payload = {
+    nama: siswa.nama,
+    absen: siswa.absen,
+    kelas: siswa.kelas,
+    nilai, benar, salah, kosong,
+    detailJawaban
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors', 
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+
+    statusEl.innerHTML = '✅ Nilai berhasil dikirim ke guru.';
+    statusEl.style.color = '#38a169';
+  } catch (err) {
+    statusEl.innerHTML = '⚠️ Gagal mengirim nilai otomatis. Tunjukkan halaman ini ke guru.';
+    statusEl.style.color = '#e53e3e';
+    console.error('Kirim gagal:', err);
+  }
+}
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('page-identitas').classList.contains('hidden')) mulaiSoal();
+});
+</script>
+</body>
+</html>
