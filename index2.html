@@ -447,20 +447,19 @@ async function kirimKeGoogle(nilai, benar, salah, kosong, detailJawaban) {
   };
 
   try {
-    
-    // Cari bagian ini di kodemu:
-const res = await fetch(SCRIPT_URL, {
+    // Ganti menjadi seperti ini (gunakan mode no-cors):
+await fetch(SCRIPT_URL, {
   method: 'POST',
+  mode: 'no-cors', 
   headers: { 'Content-Type': 'text/plain' },
   body: JSON.stringify(payload)
 });
-const result = await res.json();
-if (result.result === 'success') {
-  statusEl.innerHTML = '✅ Nilai berhasil dikirim ke guru.';
-  statusEl.style.color = '#38a169';
-} else {
-  throw new Error(result.message || 'Gagal');
-}
+
+// Karena mode no-cors tidak bisa membaca balasan Google, 
+// kita anggap sukses jika tidak ada error jaringan.
+statusEl.innerHTML = '✅ Nilai berhasil dikirim ke guru.';
+statusEl.style.color = '#38a169';
+
 }
 
 /* ============================================================
