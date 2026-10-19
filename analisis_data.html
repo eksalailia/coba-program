@@ -104,7 +104,7 @@
 
     <script>
         // URL Google Apps Script Web App (Ganti dengan URL yang Anda dapatkan setelah deployment)
-        const GOOGLE_SCRIPT_URL = "MASUKKAN_URL_WEB_APP_ANDA_DISINI";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJdqI_bRwwAmONsHmYs0Cp1n0_y9vca0wpP7FhGrUe35PJBJPKbxDp5gUTbQGZJtYVDQ/exec";
 
         // Bank Soal (20 Soal Analisis Data Kelas 7: SUM, AVERAGE, COUNT, MIN, MAX, IF, COUNTIF, SUMIF)
         const rawQuestions = [
@@ -252,7 +252,7 @@
                 detail: detailAnswers
             };
 
-            if (GOOGLE_SCRIPT_URL === "MASUKKAN_URL_WEB_APP_ANDA_DISINI") {
+            if (GOOGLE_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbyJdqI_bRwwAmONsHmYs0Cp1n0_y9vca0wpP7FhGrUe35PJBJPKbxDp5gUTbQGZJtYVDQ/exec") {
                 document.getElementById('sync-status').innerText = "Catatan: URL Google Apps Script belum diatur oleh guru.";
                 return;
             }
