@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Edukasi: Detektif Rumus Spreadsheet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { background: #1e1e2f; color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px; }
+  
+  .app-container { max-width: 800px; width: 100%; background: #282a3a; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; position: relative; }
+
+  /* --- HALAMAN IDENTITAS --- */
+  #page-identitas { padding: 40px 30px; text-align: center; }
+  .logo { font-size: 60px; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  h1 { font-size: 24px; color: #4ade80; margin-bottom: 8px; }
+  .subtitle { color: #a0a5b8; font-size: 14px; margin-bottom: 30px; }
+  
+  .form-group { text-align: left; margin-bottom: 16px; }
+  label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #cbd5e1; }
+  input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 2px solid #3f4257; background: #1e1e2f; color: #fff; font-size: 15px; outline: none; transition: 0.2s; }
+  input:focus { border-color: #4ade80; }
+  
+  .btn { background: #4ade80; color: #064e3b; border: none; padding: 14px; border-radius: 10px; font-weight: 800; font-size: 16px; width: 100%; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+  .btn:hover { background: #86efac; transform: translateY(-2px); }
+  .btn:active { transform: translateY(0); }
+  .btn-download { background: #4c97ff; color: #fff; }
+  .btn-download:hover { background: #75b0ff; }
+
+  /* --- HALAMAN GAME --- */
+  #page-game { display: none; padding: 20px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; background: #1e1e2f; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; }
+  .student-info { font-size: 13px; font-weight: 700; color: #cbd5e1; line-height: 1.4; }
+  .student-info span { color: #4ade80; }
+  .timer-box { text-align: right; }
+  .timer { font-size: 20px; font-weight: 900; color: #f87171; }
+  
+  /* Area Spreadsheet */
+  .spreadsheet-container { background: #fff; border-radius: 12px; overflow-x: auto; margin-bottom: 20px; color: #333; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 400px; }
+  th, td { border: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; }
+  th { background: #f9fafb; font-weight: 700; color: #4b5563; text-align: center; }
+  td:first-child { background: #f9fafb; font-weight: 700; text-align: center; width: 40px; color: #4b5563; }
+
+  /* Soal & Input Formula */
+  .question-box { background: #1e1e2f; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #ffbd2e; }
+  .question-text { font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.5; }
+  .target-cell { font-family: 'Fira Code', monospace; font-size: 15px; color: #cbd5e1; margin-bottom: 16px; display: inline-block; background: #11111a; padding: 6px 12px; border-radius: 6px; }
+  
+  .input-wrapper { position: relative; }
+  .input-wrapper span { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-family: 'Fira Code', monospace; font-size: 18px; color: #4ade80; font-weight: 700; }
+  input[type="text"].formula-input { padding-left: 36px; font-family: 'Fira Code', monospace; font-size: 16px; letter-spacing: 0.5px; }
+  
+  .feedback-msg { margin-top: 12px; font-weight: 700; font-size: 14px; display: none; padding: 10px; border-radius: 8px; text-align: center; }
+  .feedback-error { display: block; background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid #f87171; }
+  .feedback-success { display: block; background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid #4ade80; }
+
+  .hint-box { margin-top: 16px; background: #2d3748; padding: 12px; border-radius: 8px; font-size: 13px; color: #a0a5b8; border-left: 3px solid #4c97ff; line-height: 1.5; display: none; }
+  .hint-box code { color: #ffbd2e; font-family: 'Fira Code', monospace; background: #11111a; padding: 2px 6px; border-radius: 4px; }
+
+  .btn-submit { background: #4c97ff; color: #fff; }
+  .btn-submit:hover { background: #75b0ff; }
+
+  /* --- HALAMAN HASIL --- */
+  #page-hasil { display: none; padding: 40px 30px; text-align: center; }
+  .trophy { font-size: 80px; margin-bottom: 20px; }
+  .final-score-box { background: #1e1e2f; border-radius: 16px; padding: 24px; margin-bottom: 24px; border: 2px solid #4ade80; }
+  .final-score-box h2 { font-size: 16px; color: #a0a5b8; margin-bottom: 8px; }
+  .final-score-box .big-score { font-size: 48px; font-weight: 900; color: #4ade80; line-height: 1; }
+  .final-detail { font-size: 14px; color: #cbd5e1; margin-top: 10px; line-height: 1.6; }
+
+  .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0; animation: fall 3s linear forwards; z-index: 10; }
+  @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+  
+  <div id="page-identitas">
+    <div class="logo">🔎</div>
+    <h1>Detektif Rumus</h1>
+    <p class="subtitle">Game Edukasi Informatika Kelas 7 - Analisis Data</p>
+    
+    <div class="form-group">
+      <label>Nama Lengkap</label>
+      <input type="text" id="inputNama" placeholder="Masukkan nama lengkapmu">
+    </div>
+    <div class="form-group">
+      <label>Nomor Absen</label>
+      <input type="number" id="inputAbsen" placeholder="Contoh: 15">
+    </div>
+    <div class="form-group">
+      <label>Kelas</label>
+      <input type="text" id="inputKelas" placeholder="Contoh: 7A">
+    </div>
+    
+    <button class="btn" onclick="mulaiGame()">🚀 Mulai Investigasi</button>
+    <p id="errorMsg" style="color:#f87171; font-size:13px; margin-top:12px; display:none;"></p>
+  </div>
+
+  <div id="page-game">
+    <div class="top-bar">
+      <div class="student-info">
+        👤 <span id="navNama">-</span><br>
+        🏫 <span id="navKelas">-</span> | No. <span id="navAbsen">-</span>
+      </div>
+      <div class="timer-box">
+        <div style="font-size:11px; color:#a0a5b8; font-weight:700;">WAKTU</div>
+        <div class="timer" id="timerDisplay">00:00</div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div style="font-size:14px; font-weight:700;">Soal <span id="qNum">1</span> / 6</div>
+      <div style="font-size:14px; font-weight:700; color:#4ade80;">Skor: <span id="scoreDisplay">0</span></div>
+    </div>
+
+    <div class="spreadsheet-container">
+      <table id="spreadsheetTable"></table>
+    </div>
+
+    <div class="question-box">
+      <div class="question-text" id="qText">Pertanyaan...</div>
+      <div class="target-cell" id="targetCell">Tulis rumus di sel ...</div>
+      
+      <div class="input-wrapper">
+        <span>=</span>
+        <input type="text" class="formula-input" id="formulaInput" placeholder="KETIK RUMUS DI SINI" autocomplete="off" spellcheck="false">
+      </div>
+      
+      <div class="feedback-msg" id="feedbackMsg"></div>
+      <div class="hint-box" id="hintBox"></div>
+    </div>
+
+    <button class="btn btn-submit" onclick="cekFormula()" id="btnSubmit">✔ Cek Rumus</button>
+    <button class="btn" onclick="toggleHint()" style="background:#3f4257; margin-top:8px; color:#cbd5e1; font-size:14px;">💡 Lihat Petunjuk</button>
+  </div>
+
+  <div id="page-hasil">
+    <div class="trophy">🏆</div>
+    <h1 style="color:#4ade80; margin-bottom:10px;">Investigasi Selesai!</h1>
+    <p class="subtitle" id="statusKirim">Mengirim nilai ke guru...</p>
+    
+    <div class="final-score-box">
+      <h2>Nilai Akhir Kamu</h2>
+      <div class="big-score" id="finalScore">0</div>
+      <div class="final-detail" id="finalDetail">
+        Nama: - <br> Kelas: - | Absen: -
+      </div>
+    </div>
+
+    <button class="btn btn-download" onclick="downloadHasil()">📥 Download Laporan Hasil</button>
+    <button class="btn" onclick="location.reload()" style="background:#3f4257; margin-top:10px; color:#fff;">🔄 Main Lagi</button>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// GANTI URL INI DENGAN URL WEB APP APPS SCRIPT KAMU
+// ============================================================
+const SCRIPT_URL = 'URL_WEB_APP_APPS_SCRIPT_KAMU_DI_SINI';
+
+const DATA_TABEL = [
+  ["A", "B", "C"],
+  ["Nama", "Nilai", "Status"],
+  ["Andi", 80, "Lulus"],
+  ["Budi", 60, "Remedial"],
+  ["Citra", 90, "Lulus"],
+  ["Dewi", 70, "Remedial"],
+  ["Eko", 100, "Lulus"]
+];
+
+const SOAL = [
+  {
+    text: "Jumlahkan total nilai dari seluruh siswa (sel B2 sampai B6).",
+    target: "Tulis rumus di sel B7",
+    answer: "SUM(B2:B6)",
+    hint: "Gunakan fungsi <code>SUM</code> dengan rentang dari B2 hingga B6. Pisahkan dengan titik dua (:)."
+  },
+  {
+    text: "Hitunglah nilai rata-rata dari seluruh siswa.",
+    target: "Tulis rumus di sel B8",
+    answer: "AVERAGE(B2:B6)",
+    hint: "Gunakan fungsi <code>AVERAGE</code>. Rentang selnya sama seperti soal sebelumnya (B2 sampai B6)."
+  },
+  {
+    text: "Cari nilai tertinggi (maksimal) dari daftar nilai siswa tersebut.",
+    target: "Tulis rumus di sel B9",
+    answer: "MAX(B2:B6)",
+    hint: "Gunakan fungsi <code>MAX</code> untuk mencari nilai terbesar."
+  },
+  {
+    text: "Hitung berapa banyak siswa yang memiliki data nilai (angka).",
+    target: "Tulis rumus di sel B10",
+    answer: "COUNT(B2:B6)",
+    hint: "Gunakan fungsi <code>COUNT</code> untuk menghitung banyaknya sel berisi angka."
+  },
+  {
+    text: "Hitung berapa banyak siswa yang berstatus 'Lulus' (ada di kolom C).",
+    target: "Tulis rumus di sel C8",
+    answer: "COUNTIF(C2:C6,\"Lulus\")",
+    hint: "Gunakan fungsi <code>COUNTIF</code>. Range-nya C2:C6, dan kriterianya adalah teks Lulus. Jangan lupa gunakan tanda kutip (\" \")."
+  },
+  {
+    text: "Jumlahkan nilai HANYA untuk siswa yang statusnya 'Lulus'.",
+    target: "Tulis rumus di sel C9",
+    answer: "SUMIF(C2:C6,\"Lulus\",B2:B6)",
+    hint: "Gunakan fungsi <code>SUMIF</code>. Range kriteria (C2:C6), kriteria (\"Lulus\"), lalu range yang dijumlahkan (B2:B6)."
+  }
+];
+
+let siswa = { nama: '', absen: '', kelas: '' };
+let currentSoal = 0;
+let score = 0;
+let startTime = null;
+let endTime = null;
+let timerInterval = null;
+let secondsElapsed = 0;
+let percobaan = 0;
+
+function mulaiGame() {
+  const nama = document.getElementById('inputNama').value.trim();
+  const absen = document.getElementById('inputAbsen').value.trim();
+  const kelas = document.getElementById('inputKelas').value.trim();
+  const err = document.getElementById('errorMsg');
+
+  if (!nama || !absen || !kelas) {
+    err.textContent = '⚠️ Isi semua data identitas terlebih dahulu!';
+    err.style.display = 'block';
+    return;
+  }
+
+  siswa = { nama, absen, kelas };
+  document.getElementById('navNama').textContent = nama;
+  document.getElementById('navKelas').textContent = kelas;
+  document.getElementById('navAbsen').textContent = absen;
+  
+  document.getElementById('page-identitas').style.display = 'none';
+  document.getElementById('page-game').style.display = 'block';
+  
+  renderTabel();
+  loadSoal();
+  startTimer();
+  document.getElementById('formulaInput').focus();
+}
+
+function renderTabel() {
+  const table = document.getElementById('spreadsheetTable');
+  table.innerHTML = '';
+  DATA_TABEL.forEach((row, rowIndex) => {
+    const tr = document.createElement('tr');
+    row.forEach((cell, colIndex) => {
+      if (rowIndex === 0 || colIndex === 0) {
+        const th = document.createElement('th');
+        th.textContent = cell;
+        tr.appendChild(th);
+      } else {
+        const td = document.createElement('td');
+        td.textContent = cell;
+        tr.appendChild(td);
+      }
+    });
+    table.appendChild(tr);
+  });
+}
+
+function startTimer() {
+  startTime = new Date();
+  timerInterval = setInterval(() => {
+    secondsElapsed++;
+    const m = Math.floor(secondsElapsed / 60);
+    const s = secondsElapsed % 60;
+    document.getElementById('timerDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }, 1000);
+}
+
+function loadSoal() {
+  percobaan = 0;
+  const q = SOAL[currentSoal];
+  
+  document.getElementById('qNum').textContent = currentSoal + 1;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('targetCell').textContent = q.target;
+  document.getElementById('hintBox').innerHTML = q.hint;
+  document.getElementById('hintBox').style.display = 'none';
+  
+  const input = document.getElementById('formulaInput');
+  input.value = '';
+  input.disabled = false;
+  input.focus();
+  
+  document.getElementById('feedbackMsg').className = 'feedback-msg';
+  document.getElementById('feedbackMsg').style.display = 'none';
+  document.getElementById('btnSubmit').style.display = 'block';
+  document.getElementById('btnSubmit').disabled = false;
+}
+
+function cekFormula() {
+  const input = document.getElementById('formulaInput');
+  let userFormula = input.value.trim().toUpperCase();
+  const q = SOAL[currentSoal];
+  const feedback = document.getElementById('feedbackMsg');
+  
+  userFormula = userFormula.replace(/\s+/g, '');
+  
+  if (userFormula === '') {
+    tampilkanError("Rumus tidak boleh kosong!");
+    return;
+  }
+  
+  let expectedAnswer = q.answer.toUpperCase().replace(/\s+/g, '');
+  
+  if (userFormula === expectedAnswer) {
+    input.style.borderColor = '#4ade80';
+    input.disabled = true;
+    
+    let poin = (percobaan === 0) ? 20 : 10;
+    score += poin;
+    document.getElementById('scoreDisplay').textContent = score;
+    
+    feedback.className = 'feedback-msg feedback-success';
+    feedback.textContent = `✅ Rumus Benar! +${poin} Poin`;
+    document.getElementById('btnSubmit').style.display = 'none';
+    
+    setTimeout(() => {
+      currentSoal++;
+      if (currentSoal < SOAL.length) {
+        loadSoal();
+      } else {
+        showHasil();
+      }
+    }, 1500);
+    
+  } else {
+    percobaan++;
+    input.style.borderColor = '#f87171';
+    const errorMsgs = [
+      "⚠️ #NAME? (Nama fungsi salah / tidak dikenali)",
+      "⚠️ #VALUE! (Format rumus salah)",
+      "⚠️ #SYNTAX! (Periksa tanda kurung dan titik dua)"
+    ];
+    const randomErr = errorMsgs[Math.floor(Math.random() * errorMsgs.length)];
+    feedback.className = 'feedback-msg feedback-error';
+    feedback.textContent = randomErr;
+    input.focus();
+    input.select();
+  }
+}
+
+function tampilkanError(pesan) {
+  const feedback = document.getElementById('feedbackMsg');
+  feedback.className = 'feedback-msg feedback-error';
+  feedback.textContent = pesan;
+}
+
+function toggleHint() {
+  const hint = document.getElementById('hintBox');
+  hint.style.display = (hint.style.display === 'none') ? 'block' : 'none';
+}
+
+document.getElementById('formulaInput').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (!this.disabled) cekFormula();
+  }
+});
+
+function showHasil() {
+  clearInterval(timerInterval);
+  endTime = new Date();
+  
+  document.getElementById('page-game').style.display = 'none';
+  document.getElementById('page-hasil').style.display = 'block';
+  
+  const menit = Math.floor(secondsElapsed / 60);
+  const detik = secondsElapsed % 60;
+  
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('finalDetail').innerHTML = `
+    <b>${siswa.nama}</b><br>
+    Kelas ${siswa.kelas} — No. Absen ${siswa.absen}<br>
+    Waktu: ${menit} menit ${detik} detik
+  `;
+  
+  buatConfetti();
+  kirimKeGoogle(score, menit, detik);
+}
+
+function buatConfetti() {
+  const colors = ['#ffbd2e', '#4ade80', '#4c97ff', '#ff6b6b', '#9966ff'];
+  for(let i=0; i<50; i++) {
+    const conf = document.createElement('div');
+    conf.className = 'confetti';
+    conf.style.left = Math.random() * 100 + '%';
+    conf.style.top = '-10px';
+    conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    conf.style.animationDelay = Math.random() * 2 + 's';
+    document.getElementById('page-hasil').appendChild(conf);
+    setTimeout(() => conf.remove(), 5000);
+  }
+}
+
+// ============================================================
+// KIRIM DATA KE GOOGLE APPS SCRIPT
+// ============================================================
+async function kirimKeGoogle(nilai, menit, detik) {
+  const statusEl = document.getElementById('statusKirim');
+  
+  const payload = {
+    nama: siswa.nama,
+    absen: siswa.absen,
+    kelas: siswa.kelas,
+    nilai: nilai,
+    waktu: `${menit}m ${detik}s`
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+    statusEl.innerHTML = '✅ Nilai berhasil dikirim ke guru!';
+    statusEl.style.color = '#4ade80';
+  } catch (err) {
+    statusEl.innerHTML = '⚠️ Gagal mengirim nilai otomatis. Silakan download laporan.';
+    statusEl.style.color = '#f87171';
+  }
+}
+
+function downloadHasil() {
+  const menit = Math.floor(secondsElapsed / 60);
+  const detik = secondsElapsed % 60;
+
+  const teksLaporan = 
+`========================================
+   LAPORAN HASIL GAME DETEKTIF RUMUS
+========================================
+Mata Pelajaran : Informatika
+Bab            : Analisis Data (SUM, AVERAGE, MAX, COUNT, COUNTIF, SUMIF)
+
+--- IDENTITAS SISWA ---
+Nama Lengkap   : ${siswa.nama}
+Kelas          : ${siswa.kelas}
+Nomor Absen    : ${siswa.absen}
+
+--- HASIL PENGERJAAN ---
+Nilai Akhir    : ${score} / 120
+Waktu Selesai  : ${menit} menit ${detik} detik
+Tanggal        : ${new Date().toLocaleDateString('id-ID')}
+========================================
+`;
+
+  const blob = new Blob([teksLaporan], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Hasil_DetektifRumus_${siswa.nama.replace(/\s+/g, '_')}_${siswa.kelas}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
